@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF" monitorInterval="60">
+    <Properties>
+        <Property name="logBaseFolder">/home/logs/example</Property>
+        <Property name="logFileNamePrefix">example</Property>
+        <Property name="every_file_size">1024MB</Property>
+        <Property name="log_charset">UTF-8</Property>
+        <Property name="log_pattern">[%p]%d{yyyy-MM-dd HH:mm:ss.SSS}|%t|%logger| %m%n</Property>
+    </Properties>
+    <appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${log_pattern}"/>
+        </Console>
+        <RollingRandomAccessFile name="info"
+                                 filePattern="${logBaseFolder}/%d{yyyy-MM-dd}/${logFileNamePrefix}-info-%d{yyyyMMdd-HH}.%i.log.gz"
+                                 fileName="${logBaseFolder}/${logFileNamePrefix}-info.log"
+                                 immediateFlush="false">
+            <PatternLayout charset="${log_charset}" pattern="${log_pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+                <SizeBaseDTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="1000"/>
+            <Filters>
+                <ThresholdFilter onMismatch="DENY" onMatch="ACCEPT" level="INFO"/>
+            </Filters>
+        </RollingRandomAccessFile>
+        <!--错误日志输出 -->
+        <RollingRandomAccessFile name="error"
+                                 filePattern="${logBaseFolder}/%d{yyyy-MM-dd}/${logFileNamePrefix}-error-%d{yyyyMMdd-HH}.%i.log.gz"
+                                 fileName="${logBaseFolder}/${logFileNamePrefix}-error.log"
+                                 immediateFlush="false">
+            <PatternLayout charset="${log_charset}" pattern="${log_pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+                <SizeBaseDTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <Filters>
+                <ThresholdFilter onMismatch="DENY" onMatch="ACCEPT" level="ERROR"/>
+            </Filters>
+        </RollingRandomAccessFile>
+    </appenders>
+    <loggers>
+        <AsyncLogger name="org.apache.zookeeper.ClientCnxn" level="ERROR"/>
+        <AsyncLogger name="org.apache.zookeeper.ZooKeeper" level="ERROR"/>
+        <AsyncLogger name="org.springframework" level="ERROR"/>
+        <AsyncLogger name="org.apache.kafka" level="ERROR"/>
+        <AsyncLogger name="springfox" level="ERROR"/>
+        <AsyncLogger name="org.reflections" level="ERROR"/>
+        <asyncRoot level="INFO" includeLocation="true">
+            <appender-ref level="TRACE" ref="console"/>
+            <appender-ref level="INFO" ref="info"/>
+            <appender-ref level="ERROR" ref="error"/>
+        </asyncRoot>
+    </loggers>
+</configuration>
